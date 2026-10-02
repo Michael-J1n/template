@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "MinGW64",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "D:/msys64/mingw64/include",
+                "D:/msys64/mingw64/include/c++/15.2.0",
+                "D:/msys64/mingw64/include/c++/15.2.0/x86_64-w64-mingw32",
+                "D:/msys64/mingw64/include/c++/15.2.0/backward",
+                "D:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.2.0/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "D:/msys64/mingw64/bin/g++.exe",
+            "cStandard": "c23",
+            "cppStandard": "c++23",
+            "intelliSenseMode": "windows-gcc-x64"
+        }
+    ],
+    "version": 4
+}
