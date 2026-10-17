@@ -9,7 +9,9 @@ using namespace std;
  * kth(l,r,k)：区间第 k 小，k 从 1 开始
  * rank(l,r,x)：x 的排名，即 <x 的个数 +1
  * count(l,r,x)：x 的出现次数；range_freq(l,r,low,high)：值属于 [low,high] 的个数
- * prev_value / next_value：查询前驱后继，不存在时分别返回 T 的最小值 / 最大值
+ * prev_value / next_value：查询 <x 的前驱 / >=x 的后继，不存在时分别返回 T 的最小值 / 最大值
+ * l>r 视为空区间，计数为 0、排名为 1；kth 要求 1<=k<=r-l+1。
+ * 非空区间要求 0<=l<=r<n；空区间端点要求 0<=l<=n、-1<=r<n，不做越界裁剪。
  *
  * 适用：静态数组上的区间顺序统计、值域计数、前驱后继查询。
  *
@@ -58,7 +60,7 @@ struct WaveletMatrix {
         return vals[x];
     }
     int count_id_less(int l, int r, int x) const {
-        if (x <= 0) return 0;
+        if (l > r || x <= 0) return 0;
         if (x >= m) return r - l + 1;
         int res = 0;
         for (int d = 0; d < LOG; ++d) {
@@ -72,7 +74,7 @@ struct WaveletMatrix {
     int count_leq(int l, int r, T x) const { return count_id_less(l, r, upper_bound(vals.begin(), vals.end(), x) - vals.begin()); }
     int rank(int l, int r, T x) const { return count_less(l, r, x) + 1; }
     int count(int l, int r, T x) const { return count_leq(l, r, x) - count_less(l, r, x); }
-    int range_freq(int l, int r, T low, T high) const { return count_leq(l, r, high) - count_less(l, r, low); }
+    int range_freq(int l, int r, T low, T high) const { return low > high ? 0 : count_leq(l, r, high) - count_less(l, r, low); }
     T prev_value(int l, int r, T x) const {
         int k = count_less(l, r, x);
         if (k == 0) return numeric_limits<T>::lowest();

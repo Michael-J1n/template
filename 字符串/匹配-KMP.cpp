@@ -12,7 +12,9 @@ using namespace std;
  * find_all(s)：返回 p 在 s 中所有出现位置，允许重叠。
  * count(s)：统计 p 在 s 中出现次数，允许重叠。
  * borders()：返回 p 的所有非空 border 长度，从短到长排列，例如 "ababab" 返回 {2,4,6}。
- * period(): 返回 p 的最小周期长度（更多扩展见文档末尾）。
+ * period(): 返回 p 的最短完整循环节长度；空串返回 0（一般周期见文档末尾）。
+ * 空模式串在文本的每个间隙匹配：find 返回 0，find_all 返回 0..n，count 返回 n+1。
+ * 下标与计数使用 int，要求模式串和文本长度小于 INT_MAX。
  * fail_tree(father, g): 在 s 上建立对应的失配树；father 数组保存父亲关系，g 存树；
  *                       fail 树上的节点 len，表示原串前缀 s[0..len-1]（注意是前缀长度，而不是结尾下标）
  *                       父亲定义为 father[len] = pi[len - 1]，即节点 len 的父亲 = 这个前缀的最长真 border，节点 len 的祖先链 = 长度从大到小的所有 border。
@@ -33,6 +35,7 @@ struct KMP {
         }
     }
     int find(const string& s) {
+        if (m == 0) return 0;
         for (int i = 0, j = 0; i < s.size(); ++i) {
             while (j && s[i] != p[j]) j = pi[j - 1];
             if (s[i] == p[j]) ++j;
@@ -42,6 +45,11 @@ struct KMP {
     }
     vector<int> find_all(const string& s) {
         vector<int> res;
+        if (m == 0) {
+            res.resize(s.size() + 1);
+            iota(res.begin(), res.end(), 0);
+            return res;
+        }
         // 不变量：j 为已经匹配上的 pattern 的前缀长度，第 j 个下标位置为待比较位置；
         // 即当前已知 p[0..j-1] = s[i-j..i-1]，下一步尝试匹配 p[j] 与 s[i]。
         // fail 链：前缀匹配失败后，下一步尝试更短的前缀：j = pi[j - 1]；最终跳到 0
@@ -54,6 +62,7 @@ struct KMP {
         return res;
     }
     int count(const string& s) {
+        if (m == 0) return s.size() + 1;
         int res = 0;
         for (int i = 0, j = 0; i < s.size(); ++i) {
             while (j && s[i] != p[j]) j = pi[j - 1];
@@ -70,11 +79,12 @@ struct KMP {
         return res;
     }
     int period() {
+        if (m == 0) return 0;
         int k = m - pi[m - 1];
         return m % k == 0 ? k : m;
     }
     void fail_tree(vector<int>& father, vector<vector<int>>& g) {
-        father.resize(m + 1), g.resize(m + 1);
+        father.assign(m + 1, 0), g.assign(m + 1, {});
         for (int len = 1; len <= m; ++len) {
             father[len] = pi[len - 1];
             g[father[len]].emplace_back(len);
@@ -113,10 +123,10 @@ struct KMP {
  * 
  * 有时 fail 链上 dp 也要使用类似  的思想，每一个前缀都要保留最大合法 border 长度 j 的信息，下一轮从它继续（这样 j 不每次重置跳跃，计算量摊还为 O(n)）
  * 例：给定字符串 s，求 s 所有前缀的不重叠 border 个数之和【P2375】。
- * 首先可以预处理 cnt[i] 为前缀 s[0..i] 的非空 border 个数（包括自己），即 cnt[i]=1+cnt[pi[i-1]]
+ * 首先预处理 cnt[len] 为长度 len 的前缀 s[0..len-1] 的非空 border 个数（包括自己），cnt[0]=0，cnt[len]=1+cnt[pi[len-1]]
  * 朴素做法是对于每个前缀，跳 fail 链直到满足不重叠，再累加 cnt。但这样会退化成 n^2.
  * 但考虑一个性质：对于当前前缀上的最大合法不重叠 border，去掉最后一位的这个匹配后，一定会化归到前一个前缀上的合法不重叠 border（但不一定是最大的--考虑恰好不重叠但是完全覆盖的场景）
- * 因此每个前缀都可以维护一个 j 为当前可以合法不重叠匹配上的最大 border 长度，遍历到下一个前缀后先用类似  的方案求出匹配，如果此时不满足不重叠，再跳一次即可。
+ * 因此每个前缀都可以维护一个 j 为当前可以合法不重叠匹配上的最大 border 长度，遍历到下一个前缀后先用类似  的方案求出匹配，如果此时不满足不重叠，继续跳 fail 链直到满足条件即可。
  */
 
 /**

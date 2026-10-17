@@ -10,7 +10,9 @@ using namespace std;
  * kth(l,r,k)：区间第 k 小
  * rank(l,r,x)：x 的排名，即 <x 的个数 + 1
  * count(l,r,x)：x 的出现次数；range_freq(l,r,low,high)：值属于 [low,high] 的个数
- * prev_value / next_value：查询前驱后继，不存在时分别返回 T 的最小值 / 最大值
+ * prev_value / next_value：查询 <x 的前驱 / >=x 的后继，不存在时分别返回 T 的最小值 / 最大值
+ * l>r 视为空区间，计数为 0、排名为 1；kth 要求 1<=k<=r-l+1。
+ * 非空区间要求 0<=l<=r<n；空区间端点要求 0<=l<=n、-1<=r<n，不做越界裁剪。
  *
  * 适用：带单点修改的区间顺序统计、值域计数、前驱后继查询。
  * 所有未来 update 出现的值必须预先加入 candidates 参与离散化。
@@ -141,7 +143,7 @@ struct DynamicWaveletMatrix {
             vector<int> bits(n);
             for (int i = 0; i < n; ++i) bits[i] = (cur[i] >> b) & 1;
             bit[d].build(bits);
-            mid[d] = count(bits.begin(), bits.end(), 0);
+            mid[d] = std::count(bits.begin(), bits.end(), 0);
             int p0 = 0, p1 = mid[d];
             for (int i = 0; i < n; ++i) {
                 if (bits[i]) nxt[p1++] = cur[i];
@@ -161,7 +163,7 @@ struct DynamicWaveletMatrix {
         return vals[x];
     }
     int count_id_less(int l, int r, int x) const {
-        if (x <= 0) return 0;
+        if (l > r || x <= 0) return 0;
         if (x >= m) return r - l + 1;
         int res = 0;
         for (int d = 0; d < LOG; ++d) {
@@ -175,7 +177,7 @@ struct DynamicWaveletMatrix {
     int count_leq(int l, int r, T x) const { return count_id_less(l, r, upper_bound(vals.begin(), vals.end(), x) - vals.begin()); }
     int rank(int l, int r, T x) const { return count_less(l, r, x) + 1; }
     int count(int l, int r, T x) const { return count_leq(l, r, x) - count_less(l, r, x); }
-    int range_freq(int l, int r, T low, T high) const { return count_leq(l, r, high) - count_less(l, r, low); }
+    int range_freq(int l, int r, T low, T high) const { return low > high ? 0 : count_leq(l, r, high) - count_less(l, r, low); }
     T prev_value(int l, int r, T x) const {
         int k = count_less(l, r, x);
         if (k == 0) return numeric_limits<T>::lowest();
