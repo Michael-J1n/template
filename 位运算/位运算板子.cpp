@@ -113,7 +113,7 @@ int next_log2(int n) { return __lg(n) + 1; }
 // 最大 m，使 2^m<n
 int prev_log2(int n) { return n == 1 ? -1 : __lg(n - 1); }
 
-// 最大 m，使 2^m<=n
+// 最大 m，使 2^m<=n；即 n 首位 1 的位置
 // 应用1. 给定区间 [l,r]，之内的数在 m=__lg(l^r) 之上的位完全相同（即 m 为区间中最高允许不同的位）
 // 应用2. 对于 [0,n] 中的所有数，m=__lg(n)，则 n 的最高位1是第m位，且[0,n]中的所有数的可用bit不超过第 m 位，即任意数之间的位运算结果的首1最高在第 m 位
 int floor_log2(int n) { return __lg(n); }

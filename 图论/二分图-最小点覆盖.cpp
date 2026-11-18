@@ -15,30 +15,21 @@ using namespace std;
  */
 int bipartiteMinVertexCover(vector<vector<int>>& g, int m, vector<int>& matchL, vector<int>& matchR, vector<int>& coverL, vector<int>& coverR) {
     int n = g.size(), res = 0;
-    matchL.assign(n, -1);
-    matchR.assign(m, -1);
+    matchL.assign(n, -1), matchR.assign(m, -1);
     vector<int> dep(n);
     auto bfs = [&]() -> bool {
         queue<int> q;
         fill(dep.begin(), dep.end(), -1);
         for (int i = 0; i < n; ++i) {
-            if (matchL[i] == -1) {
-                dep[i] = 0;
-                q.push(i);
-            }
+            if (matchL[i] == -1) dep[i] = 0, q.push(i);
         }
         bool ok = false;
         while (!q.empty()) {
-            int u = q.front();
-            q.pop();
+            int u = q.front(); q.pop();
             for (auto& v : g[u]) {
                 int x = matchR[v];
-                if (x == -1) {
-                    ok = true;
-                } else if (dep[x] == -1) {
-                    dep[x] = dep[u] + 1;
-                    q.push(x);
-                }
+                if (x == -1) ok = true;
+                else if (dep[x] == -1) dep[x] = dep[u] + 1, q.push(x);
             }
         }
         return ok;
@@ -47,8 +38,7 @@ int bipartiteMinVertexCover(vector<vector<int>>& g, int m, vector<int>& matchL, 
         for (auto& v : g[u]) {
             int x = matchR[v];
             if (x == -1 || dep[x] == dep[u] + 1 && dfs(x)) {
-                matchL[u] = v;
-                matchR[v] = u;
+                matchL[u] = v, matchR[v] = u;
                 return true;
             }
         }
@@ -63,26 +53,18 @@ int bipartiteMinVertexCover(vector<vector<int>>& g, int m, vector<int>& matchL, 
     vector<int> visL(n), visR(m);
     queue<int> q;
     for (int i = 0; i < n; ++i) {
-        if (matchL[i] == -1) {
-            visL[i] = 1;
-            q.push(i);
-        }
+        if (matchL[i] == -1) visL[i] = 1, q.push(i);
     }
     while (!q.empty()) {
-        int u = q.front();
-        q.pop();
+        int u = q.front(); q.pop();
         for (auto& v : g[u]) {
             if (matchL[u] == v || visR[v]) continue;
             visR[v] = 1;
             int x = matchR[v];
-            if (x != -1 && !visL[x]) {
-                visL[x] = 1;
-                q.push(x);
-            }
+            if (x != -1 && !visL[x]) visL[x] = 1, q.push(x);
         }
     }
-    coverL.clear();
-    coverR.clear();
+    coverL.clear(), coverR.clear();
     for (int i = 0; i < n; ++i) {
         if (!visL[i]) coverL.emplace_back(i);
     }

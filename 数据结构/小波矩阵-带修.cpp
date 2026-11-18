@@ -2,23 +2,39 @@
 using namespace std;
 
 /**
- * 带修小波矩阵 / Dynamic Wavelet Matrix【单点修改、区间第 k 小、排名、值域计数】
- * 数组下标为 0-based，所有查询区间均为闭区间 [l, r]，第 k 小的 k 从 1 开始。
+ * 带修小波矩阵 / Dynamic Wavelet Matrix【单点修改、区间顺序统计、值域计数】
+ * 维护数组 a，支持单点修改和区间值域查询，功能与 SegTreap 对齐。
  *
- * 支持操作：
- * update(p,x)：将 a[p] 修改为 x
- * kth(l,r,k)：区间第 k 小
- * rank(l,r,x)：x 的排名，即 <x 的个数 + 1
- * count(l,r,x)：x 的出现次数；range_freq(l,r,low,high)：值属于 [low,high] 的个数
- * prev_value / next_value：查询前驱后继，不存在时分别返回 T 的最小值 / 最大值
+ * 数组下标 0-based，查询区间为闭区间 [l, r]，第 k 小的 k 从 1 开始。
+ *
+ * 功能：
+ * DynamicWaveletMatrix<T> wm(a, vs): 使用数组 a，查询中可能会出现的值 vs 初始化
+ * set(p, x)：令 a[p] = x
+ * lt_cnt(l, r, x)：返回 [l, r] 中严格 <x 的元素个数
+ * le_cnt(l, r, x)：返回 [l, r] 中 <=x 的元素个数
+ * cnt_range(l, r, x, y)：返回 [l, r] 中值属于 [x, y] 的元素个数
+ * rank(l, r, x)：返回 x 在 [l, r] 中的排名，1-based
+ * pre_val(l, r, x)：返回 [l, r] 中最大 <x 的值
+ * lower_bound(l, r, x)：返回 [l, r] 中最小 >=x 的值
+ * upper_bound(l, r, x)：返回 [l, r] 中最小 >x 的值
+ * nxt_val(l, r, x)：等价于 upper_bound
+ * kth(l, r, k)：返回 [l, r] 中第 k 小，1-based
  *
  * 适用：带单点修改的区间顺序统计、值域计数、前驱后继查询。
- * 所有未来 update 出现的值必须预先加入 candidates 参与离散化。
+ * 所有未来 set 出现的值必须预先加入 candidates 参与离散化。
  *
- * 复杂度：建树 O(n log n log V)，修改/查询 O(log n log V)，空间 O(n log V)。
+ * 复杂度：
+ * 建树期望 O(n log n log m)，空间 O(n log m)
+ * set / 所有查询期望 O(log n log m)
+ * m 为离散化后的不同值个数。
+ *
+ * 前置条件：构造数组非空；修改下标与查询区间合法且区间非空；
+ * kth 的 k 位于 [1, r-l+1]；set 的新值已参与离散化。
  */
 template<class T>
 struct DynamicWaveletMatrix {
+    static constexpr T INF = numeric_limits<T>::max();
+    static constexpr T NINF = numeric_limits<T>::lowest();
     struct DynamicBitVector {
         struct Node {
             int ls, rs;
@@ -71,7 +87,8 @@ struct DynamicWaveletMatrix {
         void build(const vector<int>& a) {
             root = 0;
             tr.assign(a.size() + 1, Node());
-            for (int i = 0; i < (int)a.size(); ++i) {
+            int n = a.size();
+            for (int i = 0; i < n; ++i) {
                 int u = i + 1;
                 tr[u].ls = tr[u].rs = 0;
                 tr[u].sz = 1;
@@ -120,6 +137,8 @@ struct DynamicWaveletMatrix {
     vector<int> a, mid;
     vector<DynamicBitVector> bit;
     DynamicWaveletMatrix() {}
+    DynamicWaveletMatrix(int _n) { build(vector<T>(_n, T()), {}); }
+    DynamicWaveletMatrix(int _n, const vector<T>& candidates) { build(vector<T>(_n, T()), candidates); }
     DynamicWaveletMatrix(const vector<T>& a) { build(a, a); }
     DynamicWaveletMatrix(const vector<T>& a, const vector<T>& candidates) { build(a, candidates); }
     void build(const vector<T>& src, const vector<T>& candidates) {
@@ -132,7 +151,8 @@ struct DynamicWaveletMatrix {
         LOG = 1;
         while ((1LL << LOG) < m) ++LOG;
         a.resize(n);
-        for (int i = 0; i < n; ++i) a[i] = lower_bound(vals.begin(), vals.end(), src[i]) - vals.begin();
+        for (int i = 0; i < n; ++i)
+            a[i] = std::lower_bound(vals.begin(), vals.end(), src[i]) - vals.begin();
         mid.assign(LOG, 0);
         bit.assign(LOG, DynamicBitVector());
         vector<int> cur = a, nxt(n);
@@ -171,24 +191,37 @@ struct DynamicWaveletMatrix {
         }
         return res;
     }
-    int count_less(int l, int r, T x) const { return count_id_less(l, r, lower_bound(vals.begin(), vals.end(), x) - vals.begin()); }
-    int count_leq(int l, int r, T x) const { return count_id_less(l, r, upper_bound(vals.begin(), vals.end(), x) - vals.begin()); }
-    int rank(int l, int r, T x) const { return count_less(l, r, x) + 1; }
-    int count(int l, int r, T x) const { return count_leq(l, r, x) - count_less(l, r, x); }
-    int range_freq(int l, int r, T low, T high) const { return count_leq(l, r, high) - count_less(l, r, low); }
-    T prev_value(int l, int r, T x) const {
-        int k = count_less(l, r, x);
-        if (k == 0) return numeric_limits<T>::lowest();
+    int lt_cnt(int l, int r, T x) const {
+        return count_id_less(l, r, std::lower_bound(vals.begin(), vals.end(), x) - vals.begin());
+    }
+    int le_cnt(int l, int r, T x) const {
+        return count_id_less(l, r, std::upper_bound(vals.begin(), vals.end(), x) - vals.begin());
+    }
+    int cnt_range(int l, int r, T x, T y) const {
+        if (y < x) return 0;
+        return le_cnt(l, r, y) - lt_cnt(l, r, x);
+    }
+    int rank(int l, int r, T x) const { return lt_cnt(l, r, x) + 1; }
+    T pre_val(int l, int r, T x) const {
+        int k = lt_cnt(l, r, x);
+        if (k == 0) return NINF;
         return kth(l, r, k);
     }
-    T next_value(int l, int r, T x) const {
-        int k = count_less(l, r, x) + 1;
-        if (k > r - l + 1) return numeric_limits<T>::max();
+    T lower_bound(int l, int r, T x) const {
+        int k = lt_cnt(l, r, x) + 1;
+        if (k > r - l + 1) return INF;
         return kth(l, r, k);
     }
-    void update(int p, T x) {
+    T upper_bound(int l, int r, T x) const {
+        int k = le_cnt(l, r, x) + 1;
+        if (k > r - l + 1) return INF;
+        return kth(l, r, k);
+    }
+    T nxt_val(int l, int r, T x) const { return upper_bound(l, r, x); }
+    void set(int p, T x) {
         int old_id = a[p];
-        int new_id = lower_bound(vals.begin(), vals.end(), x) - vals.begin();
+        int new_id = std::lower_bound(vals.begin(), vals.end(), x) - vals.begin();
+        if (old_id == new_id) return;
         int old_pos = p, new_pos = p;
         for (int d = 0; d < LOG; ++d) {
             int b = LOG - 1 - d;

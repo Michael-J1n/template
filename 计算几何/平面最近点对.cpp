@@ -1,13 +1,12 @@
-/**
- * 在 O(nlogn) 求出平面中最近点对的距离
- * 最远点对可以通过凸包直径求出，最近点对需要使用分治的思路
- */
-
 #include <bits/stdc++.h>
 using namespace std;
 using ld = long double;
 const ld INF = 1e30;
 
+/**
+ * 在 O(nlogn) 求出平面中最近点对的距离
+ * 最远点对可以通过凸包直径求出，最近点对需要使用分治的思路
+ */
 struct Point {
     ld x, y;
 };

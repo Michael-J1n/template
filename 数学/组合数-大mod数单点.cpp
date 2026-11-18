@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int mod = 1e9 + 7;
 
 /**
  * 在mod数很大的时候，显然类似lucas等的逆元预处理会MLE
@@ -27,12 +26,12 @@ long long inv(long long a, long long m) {
 	x = (x % m + m) % m;
 	return x;
 }
-// long long inv(long long a, long long m) { return qpow(a, m - 2, m); }
-long long C(long long n, long long m) {
+// long long inv(long long a, long long m, long long p) { return qpow(a, m - 2, p); }
+long long C(long long n, long long m, long long p) {
     if (m < 0 || m > n) return 0;
     long long res = 1;
     for (int i = 1; i <= m; ++i) {
-        res = res * (n - m + i) % mod * inv(i, mod) % mod;
+        res = res * (n - m + i) % p * inv(i, p) % p;
     }
     return res;
 }

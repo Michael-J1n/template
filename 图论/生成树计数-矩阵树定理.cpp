@@ -38,6 +38,8 @@ long long det(vector<vector<long long>> a, long long mod) {
  * 无向图矩阵树定理 / Matrix-Tree Theorem【无权图生成树计数】
  * 点下标为 0-based，边格式为 {u, v}，mod 为质数。
  *
+ * 矩阵构造：定义 A 为邻接矩阵，A[i][j] = i,j 之间的边数，D 为度数对角矩阵，D[i][i] = deg[i]；那么拉普拉斯矩阵 L = D - A;
+ * 删除 L 的任意一行及对应的一列，得到的 (n-1)x(n-1) 矩阵 M 的行列式 det(M) 即为图的生成树数量。
  * matrix_tree(n, edges, mod)：求无向图生成树数量。
  *
  * 复杂度：O(n^3 + m)。

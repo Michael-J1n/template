@@ -10,25 +10,21 @@ using namespace std;
  *
  * 功能与复杂度：
  * 1. PermCycles pc(p)：传入 0-based permutation 并自动分环，O(n)
- * 2. sameCycle(u,v)：判断 u,v 是否在同一个环上，O(1)
+ * 2. check(u,v)：判断 u,v 是否在同一个环上，O(1)
  * 3. period(u)：返回 u 所在环的长度，O(1)
  * 4. jump(u,t)：返回从 u 沿 p 走 t 步后的点，O(1)
- * 5. jumpBack(u,t)：返回从 u 沿 p 的反方向走 t 步后的点，O(1)
- * 6. distTo(u,v)：返回 u 沿 p 走到 v 的最少步数，不同环返回 -1，O(1)
- * 7. rdistTo(u,v)：返回 u 沿 p 的反方向走到 v 的最少步数，不同环返回 -1，O(1)
- * 8. getCycle(u)：返回 u 所在的整个环，O(1)
- * 9. cycleCount(): 返回总环数，O(1)
+ * 5. rjump(u,t)：返回从 u 沿 p 的反方向走 t 步后的点，O(1)
+ * 6. dist(u,v)：返回 u 沿 p 走到 v 的最少步数，不同环返回 -1，O(1)
+ * 7. rdist(u,v)：返回 u 沿 p 的反方向走到 v 的最少步数，不同环返回 -1，O(1)
+ * 8. get(u)：返回 u 所在的整个环，O(1)
+ * 9. count(): 返回总环数，O(1)
  */
 struct PermCycles {
-    using ll = long long;
     int n;
     vector<int> p, inv, cid, pos;
     vector<vector<int>> cyc;
     PermCycles() {}
-    PermCycles(const vector<int>& _p) : p(_p) {
-        n = p.size();
-        build();
-    }
+    PermCycles(const vector<int>& _p) : n(_p.size()), p(_p) { build(); }
     void build() {
         inv.assign(n, -1);
         for (int i = 0; i < n; ++i) inv[p[i]] = i;
@@ -42,34 +38,26 @@ struct PermCycles {
             cyc.emplace_back(v);
         }
     }
-    bool sameCycle(int u, int v) const {
-        return cid[u] == cid[v];
-    }
-    int period(int u) const {
-        return cyc[cid[u]].size();
-    }
-    int jump(int u, ll t) const {
+    bool check(int u, int v) const { return cid[u] == cid[v]; }
+    int period(int u) const { return cyc[cid[u]].size(); }
+    int jump(int u, long long t) const {
         int c = cid[u], L = cyc[c].size();
         return cyc[c][(pos[u] + t) % L];
     }
-    int jumpBack(int u, ll t) const {
+    int rjump(int u, long long t) const {
         int c = cid[u], L = cyc[c].size();
         return cyc[c][(pos[u] - t % L + L) % L];
     }
-    ll distTo(int u, int v) const {
+    long long dist(int u, int v) const {
         if (cid[u] != cid[v]) return -1;
         int c = cid[u], L = cyc[c].size();
         return (pos[v] - pos[u] + L) % L;
     }
-    ll rdistTo(int u, int v) const {
+    long long rdist(int u, int v) const {
         if (cid[u] != cid[v]) return -1;
         int c = cid[u], L = cyc[c].size();
         return (pos[u] - pos[v] + L) % L;
     }
-    const vector<int>& getCycle(int u) const {
-        return cyc[cid[u]];
-    }
-    int cycleCount() const {
-        return cyc.size();
-    }
+    const vector<int>& get(int u) const { return cyc[cid[u]]; }
+    int count() const { return cyc.size(); }
 };

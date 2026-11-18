@@ -28,7 +28,6 @@ int numGroups(vector<int>& nums) {
     return res; 
 }
 
-
 // 字符串版本
 int numGroups(const string& nums) {
     int n = nums.size(), i = 0, start;

@@ -8,19 +8,17 @@ using namespace std;
  * 贪心：
  * 按右端点 r 升序排序，每次选能接上的区间。
  * 
- * 复杂度：
- * O(nlogn)
+ * 复杂度：O(n log n)
  * 
  * 注意允许端点重合时将判断加上取等
  */
-int intervalSchedule(vector<vector<int>>& seg) {
-    sort(seg.begin(), seg.end(), [](auto& a, auto& b) {
-        if (a[1] != b[1]) return a[1] < b[1];
-        return a[0] < b[0];
+int intervalSchedule(vector<pair<int, int>>& segs) {
+    sort(segs.begin(), segs.end(), [](auto& a, auto& b) {
+        if (a.second != b.second) return a.second < b.second;
+        return a.first < b.first;
     });
     int res = 0, last = INT_MIN;
-    for (auto& x : seg) {
-        int l = x[0], r = x[1];
+    for (auto& [l, r] : segs) {
         if (last < l) ++res, last = r;      // 选择这个区间
         // if (last <= l) ++res, last = r;  // 允许端点重合时
     }

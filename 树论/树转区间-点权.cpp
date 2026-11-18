@@ -39,9 +39,10 @@ struct DfsOrder {
         }
     }
     pair<int, int> subtree(int u) const { return {dfn[u], dfn[u] + sz[u] - 1}; }
-    template<class T> void to_seq(vector<int>& a, vector<T>& b) const {
-        b.resize(a.size());
+    vector<long long> to_seq(vector<int>& a) const {
+        vector<long long> b(a.size());
         for (int u = 0; u < a.size(); ++u) b[dfn[u]] = a[u];
+        return b;
     }
 };
 
@@ -59,7 +60,7 @@ void solve() {
     }
 
     DfsOrder ord(g, 0);
-    vector<long long> b; ord.to_seq(a, b);
+    vector<long long> b = ord.to_seq(a);
 
     int u; cin >> u;
     --u;

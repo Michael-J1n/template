@@ -7,15 +7,14 @@ using namespace std;
  * 
  * 按照区间左端点排序；每到一个新区间，判断应该留下合并还是新开一个
  * 
- * 复杂度：
- * O(nlogn)
+ * 复杂度：O(n log n)
  */
-vector<vector<int>> intervalMerge(vector<vector<int>>& intervals) {
-    ranges::sort(intervals);
-    int n = intervals.size(), L = intervals[0][0], R = intervals[0][1];
-    vector<vector<int>> res;
+vector<pair<int, int>> intervalMerge(vector<pair<int, int>>& segs) {
+    ranges::sort(segs);
+    int n = segs.size(), L = segs[0].first, R = segs[0].second;
+    vector<pair<int, int>> res;
     for (int i = 1; i < n; ++i) {
-        int l = intervals[i][0], r = intervals[i][1];
+        auto& [l, r] = segs[i];
         if (l > R) res.push_back({L, R}), L = l, R = r;
         else R = max(r, R);
     }

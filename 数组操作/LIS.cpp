@@ -1,8 +1,5 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define eb emplace_back
-using vi = vector<int>;
-using pii = pair<int, int>;
 
 /**
  * 一维严格 LIS
@@ -13,11 +10,11 @@ using pii = pair<int, int>;
  * 
  * 复杂度 O(nlogn)
  */
-int LIS(vi& a) {
-    vi g;
+int LIS(vector<int>& a) {
+    vector<int> g;
     for (auto& x : a) {
         auto it = ranges::lower_bound(g, x);
-        if (it == g.end()) g.eb(x);
+        if (it == g.end()) g.emplace_back(x);
         else *it = x;
     }
     return g.size();
@@ -32,11 +29,11 @@ int LIS(vi& a) {
  * 
  * 复杂度 O(nlogn)
  */
-int LNDS(vi& a) {
-    vi g;
+int LNDS(vector<int>& a) {
+    vector<int> g;
     for (auto& x : a) {
         auto it = ranges::upper_bound(g, x);
-        if (it == g.end()) g.eb(x);
+        if (it == g.end()) g.emplace_back(x);
         else *it = x;
     }
     return g.size();
@@ -52,15 +49,15 @@ int LNDS(vi& a) {
  * 
  * 复杂度 O(nlogn)
  */
-int LIS2D_LT_LT(vector<pii>& a) {
+int LIS2D_LT_LT(vector<pair<int, int>>& a) {
     ranges::sort(a, [&](const auto& x, const auto& y) {
         if (x.first != y.first) return x.first < y.first;
         return x.second > y.second;
     });
-    vi g;
+    vector<int> g;
     for (auto& [_, x] : a) {
         auto it = ranges::lower_bound(g, x);
-        if (it == g.end()) g.eb(x);
+        if (it == g.end()) g.emplace_back(x);
         else *it = x;
     }
     return g.size();
@@ -76,15 +73,15 @@ int LIS2D_LT_LT(vector<pii>& a) {
  * 
  * 复杂度 O(nlogn)
  */
-int LIS2D_LE_LT(vector<pii>& a) {
+int LIS2D_LE_LT(vector<pair<int, int>>& a) {
     ranges::sort(a, [&](const auto& x, const auto& y) {
         if (x.first != y.first) return x.first < y.first;
         return x.second < y.second;
     });
-    vi g;
+    vector<int> g;
     for (auto& [_, x] : a) {
         auto it = ranges::lower_bound(g, x);
-        if (it == g.end()) g.eb(x);
+        if (it == g.end()) g.emplace_back(x);
         else *it = x;
     }
     return g.size();
@@ -100,15 +97,15 @@ int LIS2D_LE_LT(vector<pii>& a) {
  * 
  * 复杂度 O(nlogn)
  */
-int LIS2D_LT_LE(vector<pii>& a) {
+int LIS2D_LT_LE(vector<pair<int, int>>& a) {
     ranges::sort(a, [&](const auto& x, const auto& y) {
         if (x.second != y.second) return x.second < y.second;
         return x.first < y.first;
     });
-    vi g;
+    vector<int> g;
     for (auto& [x, _] : a) {
         auto it = ranges::lower_bound(g, x);
-        if (it == g.end()) g.eb(x);
+        if (it == g.end()) g.emplace_back(x);
         else *it = x;
     }
     return g.size();
@@ -124,15 +121,15 @@ int LIS2D_LT_LE(vector<pii>& a) {
  * 
  * 复杂度 O(nlogn)
  */
-int LIS2D_LE_LE(vector<pii>& a) {
+int LIS2D_LE_LE(vector<pair<int, int>>& a) {
     ranges::sort(a, [&](const auto& x, const auto& y) {
         if (x.first != y.first) return x.first < y.first;
         return x.second < y.second;
     });
-    vi g;
+    vector<int> g;
     for (auto& [_, x] : a) {
         auto it = ranges::upper_bound(g, x);
-        if (it == g.end()) g.eb(x);
+        if (it == g.end()) g.emplace_back(x);
         else *it = x;
     }
     return g.size();

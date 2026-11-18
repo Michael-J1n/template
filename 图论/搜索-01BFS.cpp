@@ -1,12 +1,15 @@
 #include <bits/stdc++.h>
 using namespace std;
+
 const int INF = 0x3f3f3f3f;
 
 /**
  * 一般在网格图中（但一般图也可以使用），操作只有两种代价：0 或 1，可以使用 01 BFS
  * 算法：使用双端队列，代价 0 的更新放队首，代价 1 的更新放对尾
+ * 
+ * 一种常见建模：求起点到终点最小操作次数；例如：有向图，操作一次可以反转边的指向，求起点到终点的最小操作次数。
+ * 假设 u->v 为给定边，那么设置 w(u,v)=0, w(v,u)=1，跑最短路即可
  */
-
 // 网格图
 const int dx[4] = {-1, 0, 1, 0}, dy[4] = {0, 1, 0, -1};
 int zeroOneGridBFS(vector<vector<int>>& grid) {
@@ -28,7 +31,6 @@ int zeroOneGridBFS(vector<vector<int>>& grid) {
     }
     return dis[n - 1][m - 1];
 }
-
 // 一般图
 int zeroOneBFS(int n, vector<vector<pair<int, int>>>& g, int s, int t) {
     vector<int> dis(n + 1, INF); dis[s] = 0;

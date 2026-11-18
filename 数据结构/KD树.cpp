@@ -11,53 +11,55 @@ using namespace std;
  * range_query(x1, y1, x2, y2)：查询矩形内所有点的原编号；
  * nearest_dist2(x, y, banned_id)：查询最近点距离平方；
  * nearest_id(x, y, banned_id)：查询最近点原编号；
- * kth_dist2(x, y, k, banned_id)：查询第 k 近点距离平方。
- *
+ * kth_dist2(x, y, k, banned_id)：查询第 k 近点距离平方；
+ * nearest(x, y)：返回 {最近邻下标，最近距离平方}。
+ * 
  * 适用：二维静态点集的矩形范围查询、最近邻与 k 近邻查询。
  *
  * 复杂度：建树平均 O(n log n)；范围查询与最近邻平均远快于 O(n)，最坏 O(n)；
  * 第 k 近邻最坏 O(n log k)。
  *
- * 前置条件：坐标差平方和不超过 long long 范围；k >= 1；
- * banned_id = -1 表示不排除任何点；不存在答案时距离返回 LLONG_MAX，编号返回 -1。
+ * banned_id = -1 表示不排除任何点；不存在答案时编号返回 -1
  */
+template <typename T = long long>
 struct KDTree {
-    static constexpr long long LINF = LLONG_MAX;
+    static constexpr T LINF = LLONG_MAX;
     struct Point {
-        int x, y, id;
-        int operator[](int d) const { return d ? y : x; }
+        T x, y;
+        int id;
+        T operator[](int d) const { return d ? y : x; }
     };
     struct Node {
         Point p;
         int ls, rs, sz;
-        int mn[2], mx[2];
+        T mn[2], mx[2];
     };
     int n, root;
     vector<Point> a;
     vector<Node> tr;
     KDTree() : n(0), root(-1) {}
-    KDTree(const vector<pair<int, int>>& points) { init(points); }
-    long long dist2(const Point& a, const Point& b) const {
-        long long dx = 1LL * a.x - b.x;
-        long long dy = 1LL * a.y - b.y;
+    KDTree(const vector<pair<T, T>>& points) { init(points); }
+    T dist2(const Point& a, const Point& b) const {
+        T dx = a.x - b.x;
+        T dy = a.y - b.y;
         return dx * dx + dy * dy;
     }
-    long long box_dist2(int u, const Point& p) const {
-        long long res = 0;
+    T box_dist2(int u, const Point& p) const {
+        T res = 0;
         for (int d = 0; d < 2; ++d) {
             if (p[d] < tr[u].mn[d]) {
-                long long delta = 1LL * tr[u].mn[d] - p[d];
+                T delta = tr[u].mn[d] - p[d];
                 res += delta * delta;
             } else if (p[d] > tr[u].mx[d]) {
-                long long delta = 1LL * p[d] - tr[u].mx[d];
+                T delta = p[d] - tr[u].mx[d];
                 res += delta * delta;
             }
         }
         return res;
     }
-    bool outside(int u, int x1, int y1, int x2, int y2) const { return tr[u].mx[0] < x1 || tr[u].mn[0] > x2 || tr[u].mx[1] < y1 || tr[u].mn[1] > y2; }
-    bool inside(int u, int x1, int y1, int x2, int y2) const { return x1 <= tr[u].mn[0] && tr[u].mx[0] <= x2 && y1 <= tr[u].mn[1] && tr[u].mx[1] <= y2; }
-    bool inside(const Point& p, int x1, int y1, int x2, int y2) const { return x1 <= p.x && p.x <= x2 && y1 <= p.y && p.y <= y2; }
+    bool outside(int u, T x1, T y1, T x2, T y2) const { return tr[u].mx[0] < x1 || tr[u].mn[0] > x2 || tr[u].mx[1] < y1 || tr[u].mn[1] > y2; }
+    bool inside(int u, T x1, T y1, T x2, T y2) const { return x1 <= tr[u].mn[0] && tr[u].mx[0] <= x2 && y1 <= tr[u].mn[1] && tr[u].mx[1] <= y2; }
+    bool inside(const Point& p, T x1, T y1, T x2, T y2) const { return x1 <= p.x && p.x <= x2 && y1 <= p.y && p.y <= y2; }
     void pushup(int u) {
         tr[u].sz = 1;
         tr[u].mn[0] = tr[u].mx[0] = tr[u].p.x;
@@ -73,7 +75,7 @@ struct KDTree {
     }
     int build(int l, int r, int dep) {
         if (l > r) return -1;
-        int mid = l + r >> 1;
+        int mid = (l + r) >> 1;
         int d = dep & 1;
         nth_element(a.begin() + l, a.begin() + mid, a.begin() + r + 1, [d](const Point& a, const Point& b) {
             if (a[d] != b[d]) return a[d] < b[d];
@@ -87,14 +89,14 @@ struct KDTree {
         pushup(u);
         return u;
     }
-    void init(const vector<pair<int, int>>& points) {
+    void init(const vector<pair<T, T>>& points) {
         n = points.size();
         a.resize(n);
         tr.resize(n);
         for (int i = 0; i < n; ++i) a[i] = {points[i].first, points[i].second, i};
         root = build(0, n - 1, 0);
     }
-    int range_count(int u, int x1, int y1, int x2, int y2) const {
+    int range_count(int u, T x1, T y1, T x2, T y2) const {
         if (u == -1 || outside(u, x1, y1, x2, y2)) return 0;
         if (inside(u, x1, y1, x2, y2)) return tr[u].sz;
         int res = inside(tr[u].p, x1, y1, x2, y2);
@@ -102,14 +104,14 @@ struct KDTree {
         res += range_count(tr[u].rs, x1, y1, x2, y2);
         return res;
     }
-    int range_count(int x1, int y1, int x2, int y2) const { return range_count(root, x1, y1, x2, y2); }
+    int range_count(T x1, T y1, T x2, T y2) const { return range_count(root, x1, y1, x2, y2); }
     void collect(int u, vector<int>& res) const {
         if (u == -1) return;
         res.emplace_back(tr[u].p.id);
         collect(tr[u].ls, res);
         collect(tr[u].rs, res);
     }
-    void range_query(int u, int x1, int y1, int x2, int y2, vector<int>& res) const {
+    void range_query(int u, T x1, T y1, T x2, T y2, vector<int>& res) const {
         if (u == -1 || outside(u, x1, y1, x2, y2)) return;
         if (inside(u, x1, y1, x2, y2)) {
             collect(u, res);
@@ -119,23 +121,23 @@ struct KDTree {
         range_query(tr[u].ls, x1, y1, x2, y2, res);
         range_query(tr[u].rs, x1, y1, x2, y2, res);
     }
-    vector<int> range_query(int x1, int y1, int x2, int y2) const {
+    vector<int> range_query(T x1, T y1, T x2, T y2) const {
         vector<int> res;
         range_query(root, x1, y1, x2, y2, res);
         return res;
     }
-    void nearest(int u, const Point& p, int banned_id, long long& ans, int& id) const {
+    void nearest(int u, const Point& p, int banned_id, T& ans, int& id) const {
         if (u == -1) return;
         if (tr[u].p.id != banned_id) {
-            long long d = dist2(tr[u].p, p);
-            if (d < ans || d == ans && tr[u].p.id < id) {
+            T d = dist2(tr[u].p, p);
+            if (d < ans || (d == ans && tr[u].p.id < id)) {
                 ans = d;
                 id = tr[u].p.id;
             }
         }
         int l = tr[u].ls, r = tr[u].rs;
-        long long dl = l == -1 ? LINF : box_dist2(l, p);
-        long long dr = r == -1 ? LINF : box_dist2(r, p);
+        T dl = l == -1 ? LINF : box_dist2(l, p);
+        T dr = r == -1 ? LINF : box_dist2(r, p);
         if (dl > dr) {
             swap(dl, dr);
             swap(l, r);
@@ -143,24 +145,24 @@ struct KDTree {
         if (dl <= ans) nearest(l, p, banned_id, ans, id);
         if (dr <= ans) nearest(r, p, banned_id, ans, id);
     }
-    long long nearest_dist2(int x, int y, int banned_id = -1) const {
+    T nearest_dist2(T x, T y, int banned_id = -1) const {
         Point p = {x, y, -1};
-        long long ans = LINF;
+        T ans = LINF;
         int id = -1;
         nearest(root, p, banned_id, ans, id);
         return ans;
     }
-    int nearest_id(int x, int y, int banned_id = -1) const {
+    int nearest_id(T x, T y, int banned_id = -1) const {
         Point p = {x, y, -1};
-        long long ans = LINF;
+        T ans = LINF;
         int id = -1;
         nearest(root, p, banned_id, ans, id);
         return id;
     }
-    void kth(int u, const Point& p, int k, int banned_id, int& cnt, priority_queue<long long>& heap) const {
+    void kth(int u, const Point& p, int k, int banned_id, int& cnt, priority_queue<T>& heap) const {
         if (u == -1) return;
         if (tr[u].p.id != banned_id) {
-            long long d = dist2(tr[u].p, p);
+            T d = dist2(tr[u].p, p);
             if (cnt < k) {
                 heap.push(d);
                 ++cnt;
@@ -170,8 +172,8 @@ struct KDTree {
             }
         }
         int l = tr[u].ls, r = tr[u].rs;
-        long long dl = l == -1 ? LINF : box_dist2(l, p);
-        long long dr = r == -1 ? LINF : box_dist2(r, p);
+        T dl = l == -1 ? LINF : box_dist2(l, p);
+        T dr = r == -1 ? LINF : box_dist2(r, p);
         if (dl > dr) {
             swap(dl, dr);
             swap(l, r);
@@ -179,11 +181,18 @@ struct KDTree {
         if (cnt < k || dl < heap.top()) kth(l, p, k, banned_id, cnt, heap);
         if (cnt < k || dr < heap.top()) kth(r, p, k, banned_id, cnt, heap);
     }
-    long long kth_dist2(int x, int y, int k, int banned_id = -1) const {
+    T kth_dist2(T x, T y, int k, int banned_id = -1) const {
         Point p = {x, y, -1};
-        priority_queue<long long> heap;
+        priority_queue<T> heap;
         int cnt = 0;
         kth(root, p, k, banned_id, cnt, heap);
         return cnt == k ? heap.top() : LINF;
+    }
+    pair<int, T> nearest(T x, T y, int banned_id = -1) const {
+        Point p = {x, y, -1};
+        T ans = LINF;
+        int id = -1;
+        nearest(root, p, banned_id, ans, id);
+        return {id, ans};
     }
 };

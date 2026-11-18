@@ -41,10 +41,11 @@ vector<int> moAlgorithm(vector<int>& a, vector<Query>& qs) {
         if (bx & 1) return x.r > y.r;
         return x.r < y.r;
     });
-    /* ------------------ 核心部分：单点维护 ---------------- */
+    /* ----------------------- 核心部分：单点维护 --------------------- */
     vector<int> cnt(tot);                   // 频率统计桶
     vector<int> ans(q);                     // 询问对应的答案
     int cur = 0;                            // 维护当前答案
+    int L = 0, R = -1;                      // 当前区间左右端点
     auto add = [&](int i) -> void {         // 下标为 i 的元素进入查询区间
         int x = a[i];
         if (cnt[x] == 0) ++cur;
@@ -55,8 +56,8 @@ vector<int> moAlgorithm(vector<int>& a, vector<Query>& qs) {
         --cnt[x];
         if (cnt[x] == 0) --cur;
     };
+    /* ------------------------------------------------------------- */
     // 处理查询
-    int L = 0, R = -1;
     for (auto& [l, r, id] : qs) {
         while (L > l) add(--L);
         while (R < r) add(++R);

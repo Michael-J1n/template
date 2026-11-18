@@ -39,9 +39,7 @@ struct Treap {
     inline static uint64_t seed = 88172645463325252ull;
     vector<Node> t;
     int rt, bin;
-    Treap(int cap = 0) : rt(0), bin(0) {
-        if (cap) t.reserve(cap + 1);
-    }
+    Treap(int cap = 0) : rt(0), bin(0) { if (cap) t.reserve(cap + 1); }
     uint32_t rng() {
         seed += 0x9e3779b97f4a7c15ull;
         uint64_t z = seed;

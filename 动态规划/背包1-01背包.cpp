@@ -51,12 +51,11 @@ bool zeroOneKnapsackFeasible(vector<int>& w, int W) {
     return f[W];
 }
 
-// 4. 对于 3 的 bitset 优化版，省 64 倍常数（但 bitset 的容量需要是一个固定的常数上限）
-const int MXW = 1e5;
+// 4. 对于 3 的 bitset 优化版，省 64 倍常数（但 bitset 的容量需要是一个固定的常数上限，即最大可能值域；注意开 bitset 时要 +1）
+const int MXW = 1e6;
 bool zeroOneKnapsackFeasible(vector<int>& w, int W) {
     int n = w.size();
-    bitset<MXW + 1> f;
-    f[0] = 1;
+    bitset<MXW + 1> f; f[0] = 1;
     for (int i = 0; i < n; ++i) {
         f |= f << w[i];
     }

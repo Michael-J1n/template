@@ -3,8 +3,8 @@ using namespace std;
 
 /**
  * KMP【字符串模式匹配与前缀函数】
- * pi[i] 表示 p[0..i] 的最长真前缀且同时为后缀的长度，即 p[0..pi[i]-1] = p[i-pi[i]+1..i]。
- * 注意若当前长度为 len，跳 fail 链需要调用的是 pi[len - 1]。
+ * pi[i] 表示 p[0..i] 的最长真前缀且同时为后缀的**长度**，即 p[0..pi[i]-1] = p[i-pi[i]+1..i]。
+ * 注意若当前长度为 len（即 s[0..len-1]），跳 fail 链需要调用的是 pi[len - 1]。
  * 
  * 支持操作：
  * KMP(p)：O(m) 预处理模式串 p 的前缀函数。
@@ -26,6 +26,8 @@ struct KMP {
     vector<int> pi;
     KMP(const string& p) : m(p.size()), p(p), pi(m) {
         // 预处理 pi，pi[i] = j 表示 p[0..j-1] = p[i-j+1..i]
+        // 不变量：i：当前正在处理的字符下标；j：已经匹配的模式串前缀长度=匹配模式串后的字符下标
+        // [0..j-1](j)...[i-j..i-1](i)
         for (int i = 1, j = 0; i < m; ++i) {
             while (j && p[i] != p[j]) j = pi[j - 1];
             if (p[i] == p[j]) ++j;
@@ -33,6 +35,7 @@ struct KMP {
         }
     }
     int find(const string& s) {
+        // 不变量：p[0..j-1] = s[i-j..i-1]；想象固定 s，p 在下面滑
         for (int i = 0, j = 0; i < s.size(); ++i) {
             while (j && s[i] != p[j]) j = pi[j - 1];
             if (s[i] == p[j]) ++j;

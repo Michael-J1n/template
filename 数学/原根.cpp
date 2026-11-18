@@ -18,9 +18,9 @@ const int N = 1e6 + 5;
 int vis[N], prim[N], phi[N], cnt = 0;
 
 // 快速幂，O(logb)
-int qpow(int a, int b, int p) {
+long long qpow(long long a, long long b, long long p) {
 	a %= p;
-	int res = 1;
+	long long res = 1;
 	while (b) {
 		if (b & 1) res = 1LL * res * a % p;
 		a = 1LL * a * a % p, b >>= 1;
@@ -34,7 +34,7 @@ void init() {
 	vis[1] = true, phi[1] = 1;
 	for (int i = 2; i < N; ++i) {
 		if (!vis[i]) prim[++cnt] = i, phi[i] = i - 1;
-		for (int j = 1; i * prim[j] < N; ++j) {
+		for (int j = 1; 1LL * i * prim[j] < N; ++j) {
 			int p = prim[j];
 			vis[i * p] = true;
 			if (i % p == 0) {
@@ -48,11 +48,11 @@ void init() {
 
 // 判断 n 是否存在原根，O(sqrtn)
 // 性质 0
-bool check_exist(int n) {
+bool check_exist(long long n) {
 	if (n == 2 || n == 4) return true;
 	if (n % 2 == 0) n /= 2;
 	if (n % 2 == 0) return false;
-	for (int i = 2; i * i <= n; ++i) {
+	for (long long i = 2; i * i <= n; ++i) {
 		if (n % i == 0) {
 			while (n % i == 0) n /= i;
 			return (n == 1);
@@ -64,12 +64,12 @@ bool check_exist(int n) {
 // 判断 g 是否是 mod n 的原根
 // 只需判断是否有 g^phi(n)=1 (mod n) 以及其他更小的数不是阶即可；实现是不用所有素因子，只要下一层的即可
 // 复杂度：循环枚举所有 phi[n] 以下的素数，循环内部每次仅有快速幂，总体约为 O(log^2n))
-bool check_isroot(int g, int n) {
-	int pn = phi[n];
+bool check_isroot(long long g, long long n) {
+	long long pn = phi[n];
 	if (qpow(g, pn, n) != 1) return false;
 	for (int j = 1; prim[j] <= pn; ++j) {
 		if (pn % prim[j] == 0) {
-			int pm = phi[n] / prim[j];
+			long long pm = phi[n] / prim[j];
 			if (qpow(g, pm, n) == 1) return false;
 		}
 	}
@@ -78,10 +78,10 @@ bool check_isroot(int g, int n) {
 
 // 假设 g 为 mod n 的原根，生成所有原根，复杂度 O(n) （若加上排序即为 O(nlogn)，可通过计数排序优化）
 // 所有满足 gcd(i, phi(n)) 的 i 会生成 g^i
-vector<int> generate(int g, int n) {
-	int pn = phi[n];
-	vector<int> res; res.reserve(phi[pn]);
-	for (int i = 1; i <= pn; ++i) {
+vector<long long> generate(long long g, long long n) {
+	long long pn = phi[n];
+	vector<long long> res; res.reserve(phi[pn]);
+	for (long long i = 1; i <= pn; ++i) {
 		if (gcd(pn, i) == 1) res.emplace_back(qpow(g, i, n));
 	}
 	sort(res.begin(), res.end());
@@ -90,10 +90,10 @@ vector<int> generate(int g, int n) {
 
 // 枚举求出 n 的最小原根
 // 复杂度 O(n^0.25*logn) （由于原根密度较大，一个估计是最小原根出现在n^0.25的位置）
-int get_root(int n) {
+long long get_root(long long n) {
 	if (!check_exist(n)) return -1;
-	int g;
-	for (int i = 1; i <= n; ++i) {
+	long long g;
+	for (long long i = 1; i <= n; ++i) {
 		if (check_isroot(i, n)) {
 			g = i;
 			break;
@@ -103,10 +103,10 @@ int get_root(int n) {
 }
 
 // 求 n 的所有原根
-vector<int> solve(int n) {
+vector<long long> solve(long long n) {
 	if (!check_exist(n)) return {};
 	// int cnt = phi[phi[n]];  // 原根个数
-	int g = get_root(n);
-    vector<int> res = generate(g, n);
+	long long g = get_root(n);
+    vector<long long> res = generate(g, n);
     return res;
 }

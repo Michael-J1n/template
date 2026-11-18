@@ -17,30 +17,22 @@ using namespace std;
  */
 int bipartiteMatching(vector<vector<int>>& g, int m, vector<int>& matchL, vector<int>& matchR) {
     int n = g.size(), res = 0, lim = -1;
-    matchL.assign(n, -1);
-    matchR.assign(m, -1);
+    matchL.assign(n, -1), matchR.assign(m, -1);
     vector<int> dep(n);
     auto bfs = [&]() -> bool {
         queue<int> q;
         fill(dep.begin(), dep.end(), -1);
         lim = -1;
         for (int i = 0; i < n; ++i) {
-            if (matchL[i] == -1) {
-                dep[i] = 0;
-                q.push(i);
-            }
+            if (matchL[i] == -1) dep[i] = 0, q.push(i);
         }
         while (!q.empty()) {
-            int u = q.front();
-            q.pop();
+            int u = q.front(); q.pop();
             if (lim != -1 && dep[u] >= lim) continue;
             for (auto& v : g[u]) {
                 int x = matchR[v];
                 if (x == -1) lim = dep[u];
-                else if (dep[x] == -1) {
-                    dep[x] = dep[u] + 1;
-                    q.push(x);
-                }
+                else if (dep[x] == -1) dep[x] = dep[u] + 1, q.push(x);
             }
         }
         return lim != -1;
@@ -49,8 +41,7 @@ int bipartiteMatching(vector<vector<int>>& g, int m, vector<int>& matchL, vector
         for (auto& v : g[u]) {
             int x = matchR[v];
             if (x == -1 || (dep[x] == dep[u] + 1 && dep[x] <= lim && dfs(x))) {
-                matchL[u] = v;
-                matchR[v] = u;
+                matchL[u] = v, matchR[v] = u;
                 return true;
             }
         }
@@ -87,17 +78,22 @@ int bipartiteMatching(vector<vector<int>>& g, int m, vector<int>& matchL, vector
 /**
  * 另：匈牙利朴素算法求最大匹配
  * 
- * 复杂度 O(nm)
+ * g[u]：左部点能连接到的所有右部点；match[v]：当前与右部点 v 匹配的左部点，-1 表示未匹配
+ * 增广路定义：起点重点都为为匹配点，边按照 非匹配，匹配 交替，因此第一条与最后一条也都是非匹配边
+ * 
+ * 复杂度 O(VE)
  */
 int bipartiteMatching(vector<vector<int>>& g, int m, vector<int>& match) {
     int n = g.size(), res = 0, timer = 0;
     match.assign(m, -1);
     vector<int> vis(m);
+    // dfs(u)：左部点是否能找到一条增广路；vis[v]：右部点在哪一轮增广中被访问过
     auto dfs = [&](this auto&& dfs, int u) -> bool {
         for (auto& v : g[u]) {
             if (vis[v] == timer) continue;
             vis[v] = timer;
             if (match[v] == -1 || dfs(match[v])) {
+                // v 没有匹配，或发现了从 match[v] 开始的增广路，将路径上的匹配属性对换
                 match[v] = u;
                 return true;
             }

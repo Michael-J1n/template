@@ -15,7 +15,7 @@ using namespace std;
  * 复杂度：
  * find: O(log n)
  * unite: O(log n)
- * rollback: 每撤销一次有效合并 O(1)
+ * rollback: O(h-t)，其中 h 为回滚前历史栈大小
  */
 struct UFS {
     int n, cc;
@@ -41,15 +41,9 @@ struct UFS {
         sz[px] += sz[py], --cc;
         return true;
     }
-    bool check(int x, int y) {
-        return find(x) == find(y);
-    }
-    int size(int x) {
-        return sz[find(x)];
-    }
-    int snapshot() {
-        return stk.size();
-    }
+    bool check(int x, int y) { return find(x) == find(y); }
+    int size(int x) { return sz[find(x)]; }
+    int snapshot() { return stk.size(); }
     void undo() {
         auto [px, py] = stk.back();
         stk.pop_back();

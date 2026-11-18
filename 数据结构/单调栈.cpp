@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define eb emplace_back
 
 /**
  * 单调栈求 上一个/下一个 更大值/更小值 的模板
@@ -16,7 +15,7 @@ vector<int> preGt(const vector<int>& a) {
     for (int i = 0; i < n; ++i) {
         while (!st.empty() && a[st.back()] <= a[i]) st.pop_back();
         if (!st.empty()) res[i] = st.back();
-        st.eb(i);
+        st.emplace_back(i);
     }
     return res;
 }
@@ -28,7 +27,7 @@ vector<int> preLs(const vector<int>& a) {
     for (int i = 0; i < n; ++i) {
         while (!st.empty() && a[st.back()] >= a[i]) st.pop_back();
         if (!st.empty()) res[i] = st.back();
-        st.eb(i);
+        st.emplace_back(i);
     }
     return res;
 }
@@ -40,7 +39,7 @@ vector<int> nxtGt(const vector<int>& a) {
     for (int i = n - 1; i >= 0; --i) {
         while (!st.empty() && a[st.back()] <= a[i]) st.pop_back();
         if (!st.empty()) res[i] = st.back();
-        st.eb(i);
+        st.emplace_back(i);
     }
     return res;
 }
@@ -52,7 +51,7 @@ vector<int> nxtLs(const vector<int>& a) {
     for (int i = n - 1; i >= 0; --i) {
         while (!st.empty() && a[st.back()] >= a[i]) st.pop_back();
         if (!st.empty()) res[i] = st.back();
-        st.eb(i);
+        st.emplace_back(i);
     }
     return res;
 }

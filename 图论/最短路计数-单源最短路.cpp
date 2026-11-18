@@ -3,6 +3,7 @@ using namespace std;
 
 /**
  * 求从源点 source 开始到每个点的最短路路数有几条
+ * 也可见最短路DAG中
  * 
  * 复杂度：
  * O(mlogn)

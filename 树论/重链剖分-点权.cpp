@@ -13,7 +13,7 @@ using namespace std;
  * 操作：
  * path(u,v)：返回路径 u -> v 拆成的若干个 DFS 序区间 [l,r]
  * subtree(u)：返回子树 u 对应的 DFS 序区间 [l,r]
- * toSeq(a)：把原树点权 a[u] 转成 DFS 序点权 b[dfn[u]]
+ * to_seq(a)：把原树点权 a[u] 转成 DFS 序点权 b[dfn[u]]
  *
  * 复杂度：
  * 建立树链剖分 O(n)，其余查询 O(logn)
@@ -73,12 +73,26 @@ struct HLD {
         res.push_back({dfn[u], dfn[v]});
         return res;
     }
-    pair<int, int> subtree(int u) {
-        return {dfn[u], dfn[u] + sz[u] - 1};
-    }
-    vector<int> toSeq(vector<int>& a) {
+    pair<int, int> subtree(int u) { return {dfn[u], dfn[u] + sz[u] - 1}; }
+    vector<int> to_seq(vector<int>& a) {
         vector<int> b(n);
         for (int i = 0; i < n; ++i) b[dfn[i]] = a[i];
         return b;
     }
 };
+
+/**
+ * 示例用法：
+ * 
+ * HLD hld(g);
+ * vi b = hld.to_seq(a);
+ * SegTree<int> tr(b);
+ * 
+ * for (queries):
+ *  if ("update", pos, val):
+ *      tr.set(hld.dfn[pos], val);
+ *  if ("query", l, r):
+ *      auto vec = hld.path(x, y);
+ *      int tot = 0;
+ *      for (auto& [l, r] : vec) tot += tr.query(l, r);
+ */

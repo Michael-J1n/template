@@ -42,6 +42,7 @@ struct BIT {
         return pos;         // 最小下标使得前缀和 >= k
     }
 };
+
 /**
  * 给定 n 个二维点 points，以及 q 个询问 [a,b,c,d] qs，求在 [a,c] x [b,d] 范围内（含边界）的点有多少个
  * 
@@ -49,7 +50,7 @@ struct BIT {
  * 类似差分扫描线思想的转化：count(x1<=x<=x2, y1<=y<=y2) = count(x<=x2, y1<=y<=y2) - count(x<x1, y1<=y<=y2)
  * 将 x 维度建立为按顺序遍历的“时间维度”，y 维度需要查询&&修改当前时刻满足在值域范围内的点数，使用树状数组维护即可
  * 
- * 复杂度：O((n + q) log toty)
+ * 复杂度：O((n + q) log ∑y)
  * 前置条件：每个询问矩形满足 x1<=x2、y1<=y2
  */
 struct Query {

@@ -33,7 +33,7 @@ void SCC(vector<vector<int>>& g, vector<int>& comp) {
 /**
  * 2-SAT 求一组可行解
  *
- * 每个限制 {i, p, j, q} 表示（注意不用手动添加逆否命题）：A_i = p  ==>  A_j = q
+ * 每个限制 {i, p, j, q} 表示：A_i = p  ==>  A_j = q；（注意不用手动添加逆否命题）
  * 建边：A_i = p      -->  A_j = q
  *      A_j = q ^ 1  -->  A_i = p ^ 1
  *
@@ -88,11 +88,10 @@ bool twoSAT(int n, vector<array<int, 4>>& lim, vector<int>& res) {
 /**
  * 2-SAT 增强版
  *
- * lim 中每个 {i, p, j, q} 表示 x[i] = p => x[j] = q。
+ * lim 中每个 {i, p, j, q} 表示 x[i] = p ==> x[j] = q
  * res[i] 表示变量 i 的强制情况：-1：0 和 1 都可行；0：必须取 0；1：必须取 1
-
- * 复杂度：
- * SCC 为 O(n * (n + m))
+ *
+ * 复杂度：O(n * (n + m))
  */
 bool twoSAT(int n, vector<array<int, 4>>& lim, vector<int>& res) {
     vector<vector<int>> g(2 * n);

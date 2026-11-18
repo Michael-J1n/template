@@ -53,6 +53,7 @@ pair<long long, long long> det_linear(vector<vector<pair<long long, long long>>>
 }
 
 /**
+ *【矩阵树生成函数】
  * 生成树边权和 / Spanning Tree Weight Sum【所有生成树边权和之和】
  * 点下标为 0-based，边格式为 {u, v, w}，mod 为质数。
  * 每棵生成树 T 的权值定义为 Σ_{e∈T} w_e，返回所有生成树权值之和。

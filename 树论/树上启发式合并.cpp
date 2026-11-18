@@ -16,9 +16,8 @@ using namespace std;
  *      - dfs2(son[u], true)  返回时，全局桶保留了重儿子 subtree(son[u]) 的信息
  *      - dfs2(u, true)       返回时，全局桶保留了 subtree(u) 的信息
  */
-const int MXV = 2e5 + 5;  // color value range
+const int MXV = 2e5 + 5;  // 颜色数
 vector<int> DSUOnTree(vector<vector<int>>& g, vector<int>& a, int root = 0) {
-    // preprocess dfs to get heavy son and dfn order
     int n = g.size();
     vector<int> sz(n), son(n, -1), dfn(n), out(n);
     vector<int> seq; seq.reserve(n);
@@ -35,26 +34,20 @@ vector<int> DSUOnTree(vector<vector<int>>& g, vector<int>& a, int root = 0) {
         }
         out[u] = timer;
     }; dfs1(root, -1);
-
-    /** -------------------------------------------------------------------- */
-    vector<int> res(n);       // res[u] = answer for subtree(u)
-    vector<int> cnt(MXV);     // global bucket
-    int cur = 0;
-    // 将节点 x 的信息在桶中计入
-    auto add = [&](int x) -> void {
+    /** ------------------------------------------------------------------------- */
+    vector<int> res(n);       // res[u] = 子树 u 对应的答案
+    vector<int> cnt(MXV);     // 全局统计桶
+    int cur = 0;              // 当前答案
+    auto add = [&](int x) -> void {     // 将节点 x 的信息加入桶
         if (++cnt[a[x]] == 1) ++cur;
     };
-    // 将节点 x 的信息在桶中删除
-    auto del = [&](int x) -> void {
+    auto del = [&](int x) -> void {     // 将节点 x 的信息移出桶
         if (--cnt[a[x]] == 0) --cur;
     };
-    // 使用全局桶更新 rt 子树的答案
-    auto query = [&](int rt) -> void {
+    auto query = [&](int rt) -> void {  // 全局桶更新 rt 子树的答案
         res[rt] = cur;
     };
-    /** -------------------------------------------------------------------- */
-
-    // dsu on tree to merge and calc res
+    /** ------------------------------------------------------------------------- */
     auto dfs2 = [&](this auto&& dfs2, int u, int fa, bool keep) -> void {
         for (auto& v : g[u]) {
             if (v == fa || v == son[u]) continue;

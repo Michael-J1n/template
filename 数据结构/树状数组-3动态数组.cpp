@@ -44,21 +44,15 @@ struct DynamicBIT {
         if (l > r) return 0;
         return pref_sum(r) - (l ? pref_sum(l - 1) : 0);
     }
-    int alive(int id) {
-        return range_sum(id, id);
-    }
-    int size() {
-        return tot;
-    }
+    int alive(int id) { return range_sum(id, id); }
+    int size() { return tot; }
     void erase(int id) {
         if (alive(id)) add(id, -1), --tot;
     }
     void restore(int id) {
         if (!alive(id)) add(id, 1), ++tot;
     }
-    int rank(int id) {
-        return pref_sum(id) - 1;
-    }
+    int rank(int id) { return pref_sum(id) - 1; }
     int kth(int k) {
         int pos = 0;
         for (int i = __lg(n); ~i; --i) {

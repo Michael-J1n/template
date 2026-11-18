@@ -10,13 +10,13 @@ struct SegTree {
     int n;
     T e;
     vector<T> tr;
+    // -----------------------------修改开始----------------------------------
     T f(const T& a, const T& b) {
         return max(a, b);
     }
+    // -----------------------------修改结束----------------------------------
     SegTree() {}
-    SegTree(int _n, T _e) : n(_n), e(_e) {
-        tr.assign(n * 4 + 5, e);
-    }
+    SegTree(int _n, T _e) : n(_n), e(_e) { tr.assign(n * 4 + 5, e); }
     SegTree(const vector<T>& a, T _e): n(a.size()), e(_e) {
         tr.assign(n * 4 + 5, e);
         build(1, 0, n - 1, a);
@@ -64,4 +64,11 @@ struct SegTree {
  * 附注：若想要建立一个 vector<SegTree<T>>，大小 nxm，这样初始化：
  * vector<SegTree<T>> tr; tr.reserve(n);
  * for (int i = 0; i < n; ++i) tr.emplace_back(m, e);
+ * 
+ * 或者：
+ * vector<SegTree<T>> trs(27);
+ * for (int k = 1; k <= 26; ++k) {
+ *     vi a(n);
+ *     trs[k] = SegTree<T>(a, INF);
+ * }
  */

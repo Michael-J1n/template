@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int INF = 0x3f3f3f3f;
+const long long LINF = 4e18;
 
 /**
  * 最短路树
@@ -11,29 +11,28 @@ const int INF = 0x3f3f3f3f;
  * 状态定义：
  * d[v] 表示 s 到 v 的最短路距离，pre[v] 表示最短路树中 v 的父亲，tree[u] 存最短路树上 u 的儿子
  * 
- * 核心性质：若 pre[v] = u，则 d[v] = d[u] + w(u, v)
+ * 性质：
+ * 若 pre[v] = u，则 d[v] = d[u] + w(u, v)
+ * 以 s 为根，恰好 n-1 条边，构成树。最短路树不一定唯一。
+ * 如果 u 是 v 的祖先，则树上 u->v 的路径也是原图的最短路径。
  * 
- * 复杂度：
- * O((n + m) log n)
+ * 复杂度：O((n + m) log n)
  */
-
-vector<int> shortestPathTree(int n, vector<vector<pair<int, int>>>& g, int s, vector<int>& pre, vector<vector<int>>& tree) {
-    vector<int> d(n, INF), vis(n);
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>> pq;
-    pre.assign(n, -1);
-    tree.assign(n, {});
-    d[s] = 0;
-    pq.push({0, s});
+vector<long long> SPT(vector<vector<pair<int, int>>>& g, int s, vector<int>& pre, vector<vector<int>>& tree) {
+    int n = g.size();
+    vector<long long> d(n, LINF); d[s] = 0;
+    vector<char> vis(n);
+    priority_queue<pair<long long, int>, vector<pair<long long, int>>, greater<>> pq; pq.emplace(0, s);
+    pre.assign(n, -1); tree.assign(n, {});
     while (!pq.empty()) {
-        auto [du, u] = pq.top();
-        pq.pop();
+        auto [du, u] = pq.top(); pq.pop();
         if (vis[u]) continue;
         vis[u] = 1;
         for (auto& [v, w] : g[u]) {
             if (d[v] > du + w) {
                 d[v] = du + w;
                 pre[v] = u;
-                pq.push({d[v], v});
+                pq.emplace(d[v], v);
             }
         }
     }

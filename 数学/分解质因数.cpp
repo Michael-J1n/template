@@ -37,6 +37,7 @@ void init() {
         }
     }
 }
+/** 生成质因子，O(d) */
 vector<pair<int, int>> fact(int n) {
 	vector<pair<int, int>> res;
 	while (n > 1) {
@@ -46,16 +47,16 @@ vector<pair<int, int>> fact(int n) {
 	}
 	return res;
 }
-
-/** 附：生成因子，O(d) */
-vector<int> divisors(const vector<pair<int, int>>& fs) {
-    vector<int> res = {1};
-    for (auto [p, e] : fs) {
-        int m = res.size(), pw = 1;
-        for (int i = 1; i <= e; ++i) {
-            pw *= p;
-            for (int j = 0; j < m; ++j) res.emplace_back(res[j] * pw);
-        }
+/** 生成因子，O(d) */
+vector<int> getdivs(int x) {
+    vector<int> ds{1};
+    while (x > 1) {
+        int p = lpf[x], sz = ds.size(), pw = 1;
+        do {
+            x /= p, pw *= p;
+            for (int i = 0; i < sz; ++i) ds.emplace_back(ds[i] * pw);
+        } while (x > 1 && lpf[x] == p);
     }
-    return res;
+    // sort(ds.begin(), ds.end());
+    return ds;
 }

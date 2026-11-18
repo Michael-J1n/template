@@ -24,7 +24,7 @@ string kth(int n, int k, vector<int>& cnt) {
         for (int c = 0; c < 26; ++c) {  // 按照字典序枚举所有可能值
             if (!cnt[c]) continue;
             --cnt[c];                   // 试填 c
-            int p = calc(n - 1 - i);
+            int p = calc(n - 1 - i);    // 当前填好固定，后面的自由位不限制，有多少合法状态
             if (k <= p) {               // 第 k 个答案就在所有当前位置填 c 的方案中；保留 c 确定下一个位置
                 res.push_back('a' + c);
                 break;

@@ -1,8 +1,19 @@
-
 #include <bits/stdc++.h>
 using namespace std;
 
+/**
+ * 单点求数论函数
+ * 复杂度：均为 O(sqrt n)
+ * 
+ * 附：数论函数值数量级
+ * 素因子个数：O(log n)
+ * 正因子个数：O(sqrt n)
+ * 正因子和：O(n log n)
+ */
+
 // 所有单点计算的复杂度均为 O(sqrtn)
+
+// 素因子：见分解质因数部分
 
 // 正约数列表 {d: d | n}
 vector<int> divisors(int n) {

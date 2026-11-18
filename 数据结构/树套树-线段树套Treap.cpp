@@ -261,7 +261,7 @@ struct Treap {
 
 /**
  * 线段树套 Treap / 二逼平衡树
- * 维护数组 a，支持单点修改和区间值域查询
+ * 维护数组 a，支持单点修改和**区间值域查询**（可同时见动态小波矩阵，有更省空间的做法）
  * 
  * 功能：
  * get_node(i)：数组第 i 个位置对应的 Treap 在线段树中的下标
@@ -344,9 +344,10 @@ struct SegTreap {
     }
     /** 使用：auto nodes = get_nodes(l, r); for (auto& u : nodes) tr[u] */
     vector<int> get_nodes(int l, int r) const {
-        vector<int> nodes;
-        get_nodes(1, 0, n - 1, l, r, nodes);
-        return nodes;
+        array<int, 64> ids;
+        int m = 0;
+        get_nodes(1, 0, n - 1, l, r, ids, m);
+        return vector<int>(ids.begin(), ids.begin() + m);
     }
     int lt_cnt(int l, int r, T x) const {
         array<int, 64> ids;
